@@ -5,7 +5,6 @@ var router=express.Router();
 
 
 router.get("/",async(req,res)=>{
-    //res.render("register.ejs")
     res.send("wel")
 })
 
