@@ -1,6 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const Account = require("../models/acc");
 
 const register =async (req,res)=>{
     try {
@@ -42,10 +43,13 @@ const register =async (req,res)=>{
         user.token = token;
     
         // return new user
-        return res.status(201).json(user);
+        //return res.status(201).json(user);
+        res.redirect(`/register/${user._id}`);
+        //res.redirect(`/register/${register._id}`);
       } catch (err) {
         console.log(err);
       }
+      
 }
 
 const login = async(req,res)=>{
@@ -82,4 +86,44 @@ const login = async(req,res)=>{
       }
 }
 
-module.exports ={register,login};
+const update = async(req,res)=>{
+  const {id} = req.params;
+  const user =await User.findByIdAndUpdate(id,{...req.body.user});
+  res.redirect(`/register/${user._id}`);
+
+}
+
+const del = async(req,res)=>{
+  const {id} = req.params;
+    await User.findByIdAndDelete(id);
+    res.redirect(`/register`);
+}
+const getacc = async(res,req)=>{
+  try{
+    const user = await User.findOne({_id:req.params.id}).populate("acc");
+    res.json({Accounts:user});
+  }catch(err){
+    res.json({err});
+  }
+}
+
+const ethacc = async(req,res)=>{
+  try{
+  const user = await User.findById(req.params.id);
+  const createEthacc =await web3.eth.accounts.create();
+  const newAccount = new Account({
+    ethAdd:createEthacc.address,
+    privatekey:createEthacc.privatekey,
+    user:user._id
+  });
+  const account = await newAccount.save()
+  user.accounts.push(account._id);
+  await user.save();
+  res.json({user});
+}catch(err){
+  res.json({err});
+}
+}
+
+
+module.exports ={register,login,update,del,ethacc,getacc};

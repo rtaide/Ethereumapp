@@ -1,17 +1,31 @@
-var express =require("express");
-const {getBalance, sendTransaction} =require("../controllers/sendTransaction");
-const {register, login} =require("../controllers/register");
-var router=express.Router();
+var express = require("express");
+const {getBalance, sendTransaction} = require("../controllers/sendTransaction");
+const {register, login, update, del,ethacc,getacc} = require("../controllers/register");
+const User = require("../models/user");
+var router = express.Router();
 
 
 router.get("/",async(req,res)=>{
-    res.send("wel")
+    res.send("welcome")
 })
+
+router.get("/register",async(req,res)=>{
+    res.render("register.ejs");
+})
+
+router.get('/register/:id/edit', async(req,res)=>{
+    const user = await User.findById(req.params.id);
+    res.render('edit',{user});
+    //res.send("edit");
+})  
 
 router.post("/register",register);
 router.post("/login",login);
-router.post("/balance",getBalance);
+router.put("/register/:id",update);
+router.delete("/register/:id",del);
+router.get("/:id/getacc",getacc)
+router.post("/:id/ethacc",ethacc);
+router.get("/:id/balance",getBalance);
 router.post("/sendtrx",sendTransaction);
 
 module.exports=router;
-

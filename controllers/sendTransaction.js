@@ -2,20 +2,18 @@ const Web3 = require("web3");
 const web3 = new Web3('https://ropsten.infura.io/v3/3e3c4c7cd6b24318b2b25da9e5866632') ;
 const Tx = require('ethereumjs-tx').Transaction
 const Transaction = require("../models/transaction");
+const Account = require("../models/acc");
 
-const getBalance = (req,res) =>{
-    web3.eth.getBalance(req.body.transaction.Ethaddress,async(err, result)=> {
-        if (err) {
-          console.log(err)
-        } else {
-          //console.log(web3.utils.fromWei(result, "ether") + " ETH")
-          var bal =await  web3.utils.fromWei(result, "ether") + " ETH";
-            }
-            //res.send(req.body.transaction.Ethaddress)
-            res.send(bal)
-      console.log(bal) 
-      })
-}
+const getBalance = async (req,res) =>{
+    try{
+      const account =await Account.findOne({user:req.params.userId});
+      const bal = await  web3.eth.getBalance(account.Ethaddress);
+      res.json({bal});  
+    }
+   catch(error){
+     res.json(err)
+   }
+  }
 
 const sendTransaction = async (req,res) =>{
     const pkey1=  Buffer.from(req.body.transaction.Pkey,'hex');
